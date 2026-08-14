@@ -7,10 +7,8 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-# Target labels for the Iris dataset
 TARGET_NAMES = ["Setosa", "Versicolor", "Virginica"]
 
-# Load trained model
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 MODEL_PATH = os.path.join(BASE_DIR, 'models', 'model.pkl')
 
@@ -39,12 +37,19 @@ def predict():
     try:
         features_array = np.array([float(x) for x in features]).reshape(1, -1)
         pred_idx = int(model.predict(features_array)[0])
-        class_name = TARGET_NAMES[pred_idx] if pred_idx < len(TARGET_NAMES) else "Unknown"
+        
+        # Calculate confidence scores / probabilities
+        probabilities = model.predict_proba(features_array)[0]
+        confidence_data = [
+            {"name": name, "confidence": round(float(prob) * 100, 2)}
+            for name, prob in zip(TARGET_NAMES, probabilities)
+        ]
 
         return jsonify({
             "status": "success",
             "prediction": pred_idx,
-            "class_name": class_name
+            "class_name": TARGET_NAMES[pred_idx] if pred_idx < len(TARGET_NAMES) else "Unknown",
+            "confidence_scores": confidence_data
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 400
