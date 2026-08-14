@@ -21,3 +21,6 @@ PROJECT1/
 ├── requirements.txt      # Python dependencies
 ├── .gitignore            # Git ignore file
 └── README.md             # Project documentation
+## 🔗 Live Demos
+- **Live Frontend App:** [https://prachiag-02.github.io/PROJECT1/](https://prachiag-02.github.io/PROJECT1/)
+- **Live Backend API:** [https://project1-xanb.onrender.com](https://project1-xanb.onrender.com)
