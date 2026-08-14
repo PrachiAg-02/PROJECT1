@@ -7,7 +7,10 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-# Load the trained model
+# Target labels for the Iris dataset
+TARGET_NAMES = ["Setosa", "Versicolor", "Virginica"]
+
+# Load trained model
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 MODEL_PATH = os.path.join(BASE_DIR, 'models', 'model.pkl')
 
@@ -28,19 +31,23 @@ def predict():
         return jsonify({"error": "Model not loaded"}), 500
 
     data = request.get_json()
-    features = data.get("features")  # Expecting a list like: [5.1, 3.5, 1.4, 0.2]
+    features = data.get("features")
 
     if not features:
         return jsonify({"error": "No 'features' provided in request body"}), 400
 
-    # Format input and make prediction
-    features_array = np.array(features).reshape(1, -1)
-    prediction = model.predict(features_array)
+    try:
+        features_array = np.array([float(x) for x in features]).reshape(1, -1)
+        pred_idx = int(model.predict(features_array)[0])
+        class_name = TARGET_NAMES[pred_idx] if pred_idx < len(TARGET_NAMES) else "Unknown"
 
-    return jsonify({
-        "status": "success",
-        "prediction": int(prediction[0])
-    })
+        return jsonify({
+            "status": "success",
+            "prediction": pred_idx,
+            "class_name": class_name
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
