@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ML Prediction Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 500px; margin: 40px auto; padding: 20px; }
+    .input-group { margin-bottom: 12px; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; }
+    input { width: 100%; padding: 8px; box-sizing: border-box; }
+    button { width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
+    button:hover { background: #0056b3; }
+    #result { margin-top: 20px; padding: 12px; border-radius: 4px; display: none; }
+    .success { background: #e8f5e9; color: #2e7d32; }
+    .error { background: #ffebee; color: #c62828; }
+  </style>
+</head>
+<body>
+  <h2>Model Predictor</h2>
+  <div class="input-group">
+    <label>Feature 1:</label>
+    <input type="number" step="any" id="f1" value="5.1">
+  </div>
+  <div class="input-group">
+    <label>Feature 2:</label>
+    <input type="number" step="any" id="f2" value="3.5">
+  </div>
+  <div class="input-group">
+    <label>Feature 3:</label>
+    <input type="number" step="any" id="f3" value="1.4">
+  </div>
+  <div class="input-group">
+    <label>Feature 4:</label>
+    <input type="number" step="any" id="f4" value="0.2">
+  </div>
+  <button onclick="makePrediction()">Predict</button>
+
+  <div id="result"></div>
+
+  <script>
+    async function makePrediction() {
+      const f1 = parseFloat(document.getElementById('f1').value);
+      const f2 = parseFloat(document.getElementById('f2').value);
+      const f3 = parseFloat(document.getElementById('f3').value);
+      const f4 = parseFloat(document.getElementById('f4').value);
+      const resultDiv = document.getElementById('result');
+
+      try {
+        const res = await fetch('http://127.0.0.1:5000/api/predict', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ features: [f1, f2, f3, f4] })
+        });
+        const data = await res.json();
+
+        resultDiv.style.display = 'block';
+        resultDiv.className = 'success';
+        resultDiv.innerText = `Prediction Class: ${data.prediction}`;
+      } catch (err) {
+        resultDiv.style.display = 'block';
+        resultDiv.className = 'error';
+        resultDiv.innerText = 'Failed to connect to backend server.';
+      }
+    }
+  </script>
+</body>
+</html>
